@@ -1,47 +1,42 @@
-const Appointment = require('../models/appointmentModel');
+const Appointment = require("../models/appointmentModel");
 
-const getAppointments = async (req, res) => {
+const getNextAppointment = async (req, res) => {
   try {
-    const appointments = await Appointment.find().populate('client user services.service');
-    res.json(appointments);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+    const now = new Date();
+    const nowUTC = new Date(now.toISOString()); 
+    
+    const nextAppointment = await Appointment.findOne({ 
+      notified: false, 
+      appointment_date: { $gte: nowUTC }
+  }).sort({ appointment_date: 1, appointment_time: 1 });
+  
+  console.log("Fecha y hora actuales:", nowUTC);
+  console.log("Cita obtenida:", nextAppointment);
+  
+  if (!nextAppointment) {
+      const allAppointments = await Appointment.find();
+      console.log("Todas las citas en la base de datos:", allAppointments);
+      return res.json({ message: "No hay citas pendientes." });
+  }
+  
+    
+    res.json(nextAppointment);
+    
+  } catch (error) {
+      console.error("Error al obtener la cita:", error);
+      res.status(500).json({ message: "Error al obtener la cita." });
   }
 };
 
-const createAppointment = async (req, res) => {
-  try {
-    const newAppointment = new Appointment(req.body);
-    await newAppointment.save();
-    res.status(201).json(newAppointment);
-  } catch (err) {
-    res.status(400).json({ error: err.message });
-  }
+
+const markNotified = async (req, res) => {
+    try {
+        await Appointment.findByIdAndUpdate(req.params.id, { notified: true });
+        res.json({ message: "Cita marcada como notificada." });
+    } catch (error) {
+        console.error("Error al marcar la cita:", error);
+        res.status(500).json({ message: "Error al marcar la cita." });
+    }
 };
 
-const updateAppointment = async (req, res) => {
-  try {
-    const updatedAppointment = await Appointment.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-    });
-    res.json(updatedAppointment);
-  } catch (err) {
-    res.status(400).json({ error: err.message });
-  }
-};
-
-const deleteAppointment = async (req, res) => {
-  try {
-    await Appointment.findByIdAndDelete(req.params.id);
-    res.json({ message: 'Cita eliminada correctamente' });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-};
-
-module.exports = {
-  getAppointments,
-  createAppointment,
-  updateAppointment,
-  deleteAppointment,
-};
+module.exports = { getNextAppointment, markNotified };

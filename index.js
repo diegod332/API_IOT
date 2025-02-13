@@ -1,20 +1,21 @@
-const express = require('express');
-const connectDB = require('./config/db');
-
-const clientRoutes = require('./routes/clientRoutes');
+require("dotenv").config();
+const express = require("express");
+const cors = require("cors");
+const connectDB = require("./config/db");
+const appointmentRoutes = require("./routes/GeneralRoute");
 
 const app = express();
+const PORT = process.env.PORT || 3000;
 
-// Middleware
-app.use(express.json());
-
-// Conectar a MongoDB
+// Conectar a la base de datos
 connectDB();
 
-// Rutas
-app.use('/api/clients', clientRoutes);
+// Middleware
+app.use(cors());
+app.use(express.json());
 
-const PORT = 3000;
-app.listen(PORT, () => {
-  console.log(`Servidor corriendo en http://localhost:${PORT}`);
-});
+// Rutas
+app.use("/api", appointmentRoutes);
+
+// Iniciar servidor
+app.listen(PORT, () => console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`));
