@@ -1,141 +1,114 @@
 const express = require("express");
-const { 
-  getNextAppointment,
-  markNotified,
-  createAppointment,
-  getAppointmentStatus,
-  updateAppointmentStatus
-} = require("../controllers/appointmentController");
-
 const router = express.Router();
+const {
+  getConfig,
+  createOrUpdateConfig,
+  getConfigForArduino,
+  updateConfigByElemento
+} = require("../controllers/configController");
 
 /**
  * @swagger
- * tags:
- *   name: Citas
- *   description: Operaciones relacionadas con la gestión de citas.
+ * components:
+ *   schemas:
+ *     Config:
+ *       type: object
+ *       properties:
+ *         elemento:
+ *           type: string
+ *           description: Nombre del dispositivo (led, servo, etc.)
+ *         estado:
+ *           type: number
+ *           description: Estado del dispositivo (0 = apagado, 1 = encendido)
+ *         valor:
+ *           type: number
+ *           description: Valor del dispositivo (ejemplo, ángulo del servo)
+ *         unidadMedida:
+ *           type: string
+ *           description: Unidad de medida (ejemplo, "grados", "cm")
+ *       example:
+ *         elemento: "servo"
+ *         estado: 1
+ *         valor: 90
+ *         unidadMedida: "grados"
  */
 
 /**
  * @swagger
- * /next-appointment:
+ * /config:
  *   get:
- *     summary: Obtiene la siguiente cita pendiente.
- *     tags: [Citas]
+ *     summary: Obtener todas las configuraciones
+ *     tags: [Configuraciones]
  *     responses:
  *       200:
- *         description: La siguiente cita obtenida correctamente.
+ *         description: Lista de configuraciones
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/Appointment'
- *       404:
- *         description: No hay citas pendientes.
- *       500:
- *         description: Error interno del servidor.
+ *               type: object
+ *               additionalProperties:
+ *                 type: number
  */
-router.get("/next-appointment", getNextAppointment);
+router.get("/config", getConfig);
 
 /**
  * @swagger
- * /mark-notified/{id}:
+ * /config:
  *   post:
- *     summary: Marca una cita como notificada.
- *     tags: [Citas]
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         description: ID de la cita.
- *         schema:
- *           type: string
- *     responses:
- *       200:
- *         description: Cita marcada como notificada correctamente.
- *       400:
- *         description: ID inválido.
- *       404:
- *         description: Cita no encontrada.
- *       500:
- *         description: Error interno del servidor.
- */
-router.post("/mark-notified/:id", markNotified);
-
-/**
- * @swagger
- * /create-appointment:
- *   post:
- *     summary: Crea una nueva cita.
- *     tags: [Citas]
+ *     summary: Crear o actualizar una configuración
+ *     tags: [Configuraciones]
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
- *             type: object
- *             properties:
- *               first_name:
- *                 type: string
- *               last_name:
- *                 type: string
- *               appointment_date:
- *                 type: string
- *                 format: date
- *               appointment_time:
- *                 type: string
- *             required:
- *               - first_name
- *               - last_name
- *               - appointment_date
- *               - appointment_time
+ *             $ref: '#/components/schemas/Config'
  *     responses:
  *       201:
- *         description: Cita creada exitosamente.
- *       400:
- *         description: Campos requeridos faltantes.
- *       500:
- *         description: Error interno del servidor.
+ *         description: Configuración guardada o actualizada
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Config'
  */
-router.post("/create-appointment", createAppointment);
+router.post("/config", createOrUpdateConfig);
 
 /**
  * @swagger
- * /appointment-status/{id}:
+ * /config/arduino:
  *   get:
- *     summary: Obtiene el estado de una cita.
- *     tags: [Citas]
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         description: ID de la cita.
- *         schema:
- *           type: string
+ *     summary: Obtener la configuración en formato para Arduino
+ *     tags: [Configuraciones]
  *     responses:
  *       200:
- *         description: Estado de la cita obtenido correctamente.
- *       400:
- *         description: ID inválido.
- *       404:
- *         description: Cita no encontrada.
- *       500:
- *         description: Error interno del servidor.
+ *         description: Datos formateados para Arduino
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               additionalProperties:
+ *                 type: object
+ *                 properties:
+ *                   estado:
+ *                     type: number
+ *                   valor:
+ *                     type: number
  */
-router.get("/appointment-status/:id", getAppointmentStatus);
+router.get("/config/arduino", getConfigForArduino);
 
 /**
  * @swagger
- * /update-appointment-status/{id}:
- *   post:
- *     summary: Actualiza el estado de notificación de una cita.
- *     tags: [Citas]
+ * /config/{elemento}:
+ *   put:
+ *     summary: Actualizar una configuración por nombre del elemento
+ *     tags: [Configuraciones]
  *     parameters:
  *       - in: path
- *         name: id
+ *         name: elemento
  *         required: true
- *         description: ID de la cita.
  *         schema:
  *           type: string
+ *         description: Nombre del dispositivo a actualizar
  *     requestBody:
  *       required: true
  *       content:
@@ -143,18 +116,22 @@ router.get("/appointment-status/:id", getAppointmentStatus);
  *           schema:
  *             type: object
  *             properties:
- *               notified:
- *                 type: boolean
+ *               estado:
+ *                 type: number
+ *                 description: Nuevo estado del dispositivo
+ *               valor:
+ *                 type: number
+ *                 description: Nuevo valor del dispositivo
  *     responses:
  *       200:
- *         description: Estado de la cita actualizado correctamente.
- *       400:
- *         description: Datos inválidos.
+ *         description: Configuración actualizada
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Config'
  *       404:
- *         description: Cita no encontrada.
- *       500:
- *         description: Error interno del servidor.
+ *         description: Configuración no encontrada
  */
-router.post("/update-appointment-status/:id", updateAppointmentStatus);
+router.put("/config/:elemento", updateConfigByElemento);
 
 module.exports = router;

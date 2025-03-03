@@ -2,7 +2,7 @@ require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const connectDB = require("./config/db");
-const appointmentRoutes = require("./routes/GeneralRoute");
+const GeneralRoute = require("./routes/GeneralRoute");
 const swaggerDocs = require("./config/swagger");  // Asegúrate de importar el archivo que contiene la configuración de Swagger
 
 const app = express();
@@ -14,9 +14,10 @@ connectDB();
 // Middleware
 app.use(cors());
 app.use(express.json());
+app.use(express.static('public'));  // Servir archivos estáticos desde la carpeta 'public'
 
 // Rutas
-app.use("/api", appointmentRoutes);
+app.use("/api", GeneralRoute);
 
 // Configuración de Swagger
 swaggerDocs(app);  // Añadimos Swagger para documentación interactiva
