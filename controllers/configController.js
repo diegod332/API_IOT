@@ -6,7 +6,7 @@ exports.getConfig = async (req, res) => {
     const configuraciones = await Config.find();
     const respuesta = {};
     configuraciones.forEach(config => {
-      respuesta[config.elemento] = config.valor;
+      respuesta[config.elemento] = config.elemento.startsWith('led') || config.elemento === 'buzzer' ? config.estado : config.valor;
     });
     res.json(respuesta);
   } catch (error) {
@@ -51,9 +51,13 @@ exports.updateConfigByElemento = async (req, res) => {
     const { elemento } = req.params;
     const { estado, valor } = req.body;
 
+    const update = {};
+    if (estado !== undefined) update.estado = estado;
+    if (valor !== undefined) update.valor = valor;
+
     const configActualizada = await Config.findOneAndUpdate(
       { elemento },
-      { estado, valor },
+      update,
       { new: true }
     );
 

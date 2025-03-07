@@ -1,6 +1,9 @@
 const swaggerJsdoc = require('swagger-jsdoc');
 const swaggerUi = require('swagger-ui-express');
 require('dotenv').config();
+const ip = require("ip");
+
+const HOST = ip.address(); 
 
 const options = {
     definition: {
@@ -12,7 +15,7 @@ const options = {
         },
         servers: [
             {
-                url: `http://localhost:${process.env.APP_PORT || 3000}/api`,  
+                url: `http://${HOST}:${process.env.APP_PORT || 3000}/api`,  
             },
         ],
         components: {
@@ -55,9 +58,9 @@ const options = {
                             content: {
                                 'application/json': {
                                     schema: {
-                                        type: 'array',
-                                        items: {
-                                            $ref: '#/components/schemas/Config',
+                                        type: 'object',
+                                        additionalProperties: {
+                                            type: 'number',
                                         },
                                     },
                                 },
@@ -188,7 +191,7 @@ const swaggerSpec = swaggerJsdoc(options);
 
 const swaggerDocs = (app) => {
     app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
-    console.log(`📄 Documentación disponible en: http://localhost:${process.env.APP_PORT || 3000}/api-docs`);
+    console.log(`📄 Documentación disponible en: http://${HOST}:${process.env.APP_PORT || 3000}/api-docs`);
 };
 
 module.exports = swaggerDocs;

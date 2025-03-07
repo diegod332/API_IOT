@@ -38,7 +38,7 @@ const {
  * /config:
  *   get:
  *     summary: Obtener todas las configuraciones
- *     tags: [Configuraciones]
+ *     tags: [Configuración]
  *     responses:
  *       200:
  *         description: Lista de configuraciones
@@ -56,7 +56,7 @@ router.get("/config", getConfig);
  * /config:
  *   post:
  *     summary: Crear o actualizar una configuración
- *     tags: [Configuraciones]
+ *     tags: [Configuración]
  *     requestBody:
  *       required: true
  *       content:
@@ -78,7 +78,7 @@ router.post("/config", createOrUpdateConfig);
  * /config/arduino:
  *   get:
  *     summary: Obtener la configuración en formato para Arduino
- *     tags: [Configuraciones]
+ *     tags: [Configuración]
  *     responses:
  *       200:
  *         description: Datos formateados para Arduino
@@ -101,7 +101,7 @@ router.get("/config/arduino", getConfigForArduino);
  * /config/{elemento}:
  *   put:
  *     summary: Actualizar una configuración por nombre del elemento
- *     tags: [Configuraciones]
+ *     tags: [Configuración]
  *     parameters:
  *       - in: path
  *         name: elemento
