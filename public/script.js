@@ -27,7 +27,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } else if (elemento === 'sensor_temperatura') {
           deviceDiv.innerHTML = `
             <h2>${elemento}</h2>
-            <input type="number" value="${valor}" id="${elemento}" />
+            <input type="number" min="-50" max="150" value="${valor}" id="${elemento}" />
             <button onclick="updateDevice('${elemento}', 'valor')">Actualizar</button>
           `;
         }

@@ -4,11 +4,9 @@ const cors = require("cors");
 const connectDB = require("./config/db");
 const GeneralRoute = require("./routes/GeneralRoute");
 const swaggerDocs = require("./config/swagger");
-const ip = require("ip");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const HOST = ip.address(); // Obtener la dirección IP de la máquina
 
 // Conectar a la base de datos
 connectDB();
@@ -25,4 +23,4 @@ app.use("/api", GeneralRoute);
 swaggerDocs(app);  // Añadimos Swagger para documentación interactiva
 
 // Iniciar servidor
-app.listen(PORT, HOST, () => console.log(`🚀 Servidor corriendo en http://${HOST}:${PORT}`));
+app.listen(PORT, () => console.log(`🚀 Servidor corriendo en http://0.0.0.0:${PORT}`));
