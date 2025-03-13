@@ -5,10 +5,11 @@ document.addEventListener('DOMContentLoaded', () => {
   fetch('/api/config')
     .then(response => response.json())
     .then(data => {
+      // Iterar sobre los dispositivos obtenidos
       for (const [elemento, valor] of Object.entries(data)) {
         const deviceDiv = document.createElement('div');
         deviceDiv.className = 'device';
-        
+
         if (elemento.startsWith('led') || elemento === 'buzzer') {
           deviceDiv.innerHTML = `
             <h2>${elemento}</h2>
@@ -42,15 +43,18 @@ function updateDevice(elemento, campo) {
   const inputElement = document.getElementById(elemento);
   let valor;
 
+  // Verificar si el campo es un checkbox (buzzer, led) o un valor numérico (servo, sensor, potenciometro)
   if (inputElement.type === 'checkbox') {
     valor = inputElement.checked ? 1 : 0;
   } else {
     valor = parseInt(inputElement.value);
   }
 
-  const data = { elemento };
+  // Preparar el cuerpo del mensaje a enviar
+  const data = {};
   data[campo] = valor;
 
+  // Hacer la solicitud PUT para actualizar el valor
   fetch(`/api/config/${elemento}`, {
     method: 'PUT',
     headers: {
